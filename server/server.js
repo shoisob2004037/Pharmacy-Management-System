@@ -26,16 +26,37 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: 'Something went wrong!', error: err.message });
 });
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+// Connect to MongoDB once
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) {
+    console.log('Using existing MongoDB connection');
+    return;
+  }
+  
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
     console.log('Connected to MongoDB');
-    // Start server
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1);
+    throw err;
+  }
+};
+
+// Initialize connection
+connectDB().catch(err => {
+  console.error('Failed to connect to MongoDB:', err);
+});
+
+// Export for Vercel serverless
+module.exports = app;
+
+// Keep local development server
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
+}
