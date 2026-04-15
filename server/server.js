@@ -20,7 +20,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://pharmacy-management-system-flame.vercel.app'
+    'https://pharmacy-management-system-78if.vercel.app'
   ],
   credentials: true
 }));
